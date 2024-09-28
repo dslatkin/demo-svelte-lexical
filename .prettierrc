@@ -1,0 +1,9 @@
+{
+    "singleQuote": true,
+    "tabWidth": 4,
+    "plugins": ["prettier-plugin-svelte"],
+    "overrides": [
+        { "files": "*.yml", "options": { "tabWidth": 2 } },
+        { "files": "*.svelte", "options": { "parser": "svelte" } }
+    ]
+}
