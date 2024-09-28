@@ -2,7 +2,8 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
     "name": "Svelte Lexical Demo",
-    "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:0-14",
+    // support node 20 lts
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
     "customizations": {
         "vscode": {
             "extensions": [
