@@ -38,7 +38,6 @@ export default () => {
                 HeadingNode,
                 QuoteNode,
             ],
-            // editorState: serializedRichText,
             onError: (error: Error) => {
                 throw error;
             },
@@ -64,21 +63,19 @@ export default () => {
                 debugStore.set(
                     generateContent(editor, get(commands), exportDom),
                 );
+                stateStore.set(
+                    JSON.stringify(editor.getEditorState().toJSON(), null, 2),
+                );
                 editorState.read(() => {
-                    stateStore.set(
-                        JSON.stringify(
-                            editor.getEditorState().toJSON(),
-                            null,
-                            2,
-                        ),
-                    );
                     toolbarStore.$update();
                 });
             }),
             editor.registerCommand(
                 SELECTION_CHANGE_COMMAND,
-                () => {
-                    toolbarStore.$update();
+                (payload, editor) => {
+                    editor.read(() => {
+                        toolbarStore.$update();
+                    });
                     return false; // allows the command to propagate
                 },
                 COMMAND_PRIORITY_CRITICAL,

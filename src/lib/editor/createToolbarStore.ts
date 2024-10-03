@@ -7,7 +7,6 @@ import { $setBlocksType } from '@lexical/selection';
 import { $findMatchingParent, IS_APPLE } from '@lexical/utils';
 import {
     $createParagraphNode,
-    $getEditor,
     $getSelection,
     $isRangeSelection,
     $isRootOrShadowRoot,
@@ -41,7 +40,7 @@ const blockTypes = [
 type BlockType = (typeof blockTypes)[number];
 
 export default () => {
-    const editor = writable<LexicalEditor | null>(null);
+    let editor: LexicalEditor | null = null;
 
     const state = writable<{
         blockType: BlockType;
@@ -54,7 +53,7 @@ export default () => {
     });
 
     const _toolbar = derived<
-        [typeof editor, typeof state],
+        typeof state,
         {
             label: string;
             ariaLabel?: string;
@@ -62,8 +61,8 @@ export default () => {
             icon: string;
             active: boolean;
         }[]
-    >([editor, state], ([$editor, $state]) => {
-        if (!$editor) {
+    >(state, ($state) => {
+        if (!editor) {
             return [];
         }
 
@@ -73,7 +72,7 @@ export default () => {
                 label: 'Plain Text',
                 ariaLabel: 'Remove formatting',
                 handler: () => {
-                    $editor.update(() => {
+                    editor?.update(() => {
                         const selection = $getSelection();
                         if ($isRangeSelection(selection)) {
                             $setBlocksType(selection, () =>
@@ -90,7 +89,7 @@ export default () => {
             //     ariaLabel: 'Convert block to heading level 1',
             //     handler: () => {
             //         if (blockType != 'h1') {
-            //             $editor.update(() => {
+            //             editor?.update(() => {
             //                 const selection = $getSelection();
             //                 $setBlocksType(selection, () =>
             //                     $createHeadingNode('h1'),
@@ -106,7 +105,7 @@ export default () => {
                 ariaLabel: 'Convert block to heading level 2',
                 handler: () => {
                     if (blockType != 'h2') {
-                        $editor.update(() => {
+                        editor?.update(() => {
                             const selection = $getSelection();
                             $setBlocksType(selection, () =>
                                 $createHeadingNode('h2'),
@@ -122,7 +121,7 @@ export default () => {
                 ariaLabel: 'Convert block to heading level 3',
                 handler: () => {
                     if (blockType != 'h3') {
-                        $editor.update(() => {
+                        editor?.update(() => {
                             const selection = $getSelection();
                             $setBlocksType(selection, () =>
                                 $createHeadingNode('h3'),
@@ -138,7 +137,7 @@ export default () => {
             //     ariaLabel: 'Convert block to heading level 4',
             //     handler: () => {
             //         if (blockType != 'h4') {
-            //             $editor.update(() => {
+            //             editor?.update(() => {
             //                 const selection = $getSelection();
             //                 $setBlocksType(selection, () =>
             //                     $createHeadingNode('h4'),
@@ -154,7 +153,7 @@ export default () => {
             //     ariaLabel: 'Convert block to heading level 5',
             //     handler: () => {
             //         if (blockType != 'h5') {
-            //             $editor.update(() => {
+            //             editor?.update(() => {
             //                 const selection = $getSelection();
             //                 $setBlocksType(selection, () =>
             //                     $createHeadingNode('h5'),
@@ -170,7 +169,7 @@ export default () => {
             //     ariaLabel: 'Convert block to heading level 6',
             //     handler: () => {
             //         if (blockType != 'h6') {
-            //             $editor.update(() => {
+            //             editor?.update(() => {
             //                 const selection = $getSelection();
             //                 $setBlocksType(selection, () =>
             //                     $createHeadingNode('h6'),
@@ -185,7 +184,7 @@ export default () => {
                 label: 'Quote',
                 ariaLabel: 'Convert block to quote',
                 handler: () => {
-                    $editor.update(() => {
+                    editor?.update(() => {
                         const selection = $getSelection();
                         $setBlocksType(selection, () => $createQuoteNode());
                     });
@@ -199,7 +198,7 @@ export default () => {
                     IS_APPLE ? '⌘B' : 'Ctrl+B'
                 }`,
                 handler: () => {
-                    $editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+                    editor?.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
                 },
                 icon: boldIcon,
                 active: bold,
@@ -210,7 +209,7 @@ export default () => {
                     IS_APPLE ? '⌘I' : 'Ctrl+I'
                 }`,
                 handler: () => {
-                    $editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+                    editor?.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
                 },
                 icon: italicIcon,
                 active: italic,
@@ -220,13 +219,9 @@ export default () => {
 
     return {
         subscribe: _toolbar.subscribe,
-        init: (initEditor: LexicalEditor) => {
-            editor.update((currentEditor) => {
-                if (currentEditor) {
-                    throw new Error('Editor already initialized');
-                }
-                return initEditor;
-            });
+        init: (e: LexicalEditor) => {
+            editor = e;
+            state.update((s) => s);
         },
         $update: () => {
             const selection = $getSelection();
@@ -247,7 +242,7 @@ export default () => {
                 }
 
                 const elementKey = element.getKey();
-                const elementDOM = $getEditor().getElementByKey(elementKey);
+                const elementDOM = editor?.getElementByKey(elementKey);
 
                 // todo - Handle links
                 // const node = getSelectedNode(selection);
