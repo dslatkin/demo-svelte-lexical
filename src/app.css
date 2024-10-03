@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .ucla-h1 {
+        @apply mb-[2rem] mt-[3rem] text-[2.5rem] font-light leading-none lg:text-[4.5rem] [&:first-child]:mt-0 [&:last-child]:mb-0;
+    }
+    .ucla-h2 {
+        @apply mb-[1.5rem] mt-[3rem] text-[2rem] font-normal leading-none lg:text-[3rem] [&:first-child]:mt-0 [&:last-child]:mb-0;
+    }
+    .ucla-h3 {
+        @apply my-[2rem] text-[1.125rem] font-medium leading-[1.75rem] lg:text-[1.3125rem] lg:leading-[2rem];
+    }
+    .ucla-p {
+        @apply leading-[1.625rem] lg:leading-[1.75rem];
+    }
+    .ucla-p-lg {
+        @apply text-[1.3125rem];
+    }
+    .ucla-blockquote {
+        @apply italic;
+    }
+    .ucla-prose {
+        @apply [&>p]:ucla-p [&>blockquote]:ucla-blockquote [&>h2]:ucla-h2 [&>h3]:ucla-h3 [&>h3]:ucla-h3 lg:gap-12 [&>*]:my-[2rem] [&>:first-child]:mt-0 [&>:is(p,ul,ol)_a:hover]:bg-blue [&>:is(p,ul,ol)_a:hover]:text-white [&>:is(p,ul,ol)_a]:text-blue [&>:is(p,ul,ol)_a]:underline [&>:is(p,ul,ol)_a]:underline-offset-4 [&>:is(ul,ol)]:my-6 [&>:is(ul,ol)]:ml-6 [&>:last-child]:mb-0 [&>ol]:list-decimal [&>ul]:list-disc;
+    }
+}

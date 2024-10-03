@@ -1,3 +1,1 @@
-# Svelte Lexical Demo
-
-<!-- todo -->
+# demo-svelte-lexical

@@ -1,7 +1,8 @@
-<script lang="ts">
+<script>
     import Editor from '$lib/Editor.svelte';
-
-    // export let data: PageData;
+    import '../app.css';
 </script>
 
-<Editor />
+<div class="container py-4">
+    <Editor />
+</div>

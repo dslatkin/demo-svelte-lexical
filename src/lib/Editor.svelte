@@ -1,92 +1,53 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { writable } from 'svelte/store';
-    import { initEditor } from './editorInit';
-    import './editorStyles.css';
+    import initEditor from '$lib/editor/initEditor';
+    import { twMerge } from 'tailwind-merge';
 
     let editorEle: HTMLDivElement;
 
-    const debugStore = writable('');
-    const toolbarStore = writable<
-        {
-            label: string;
-            action: () => void;
-            icon: string;
-        }[]
-    >([]);
-
-    onMount(() => {
-        const destroyEditor = initEditor(editorEle, {
-            debugStore,
-            toolbarStore,
-        });
-        return destroyEditor;
-    });
+    const [editorAction, { toolbarStore, debugStore, stateStore }] =
+        initEditor();
 </script>
 
-<div class="toolbar">
-    {#each $toolbarStore as { label, action, icon }}
-        <button on:click|preventDefault={action} aria-label={label}>
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html icon}
-        </button>
-    {/each}
-</div>
+<div>
+    <div class="flex gap-2 overflow-clip px-6">
+        {#each $toolbarStore as { label, active, handler, icon, ariaLabel }}
+            <button
+                on:click|preventDefault={handler}
+                title={label}
+                aria-label={ariaLabel}
+                class={twMerge(
+                    'flex flex-col items-center justify-center rounded-t border border-white px-3 py-2 shadow-lg hover:border-gray-lighter hover:border-b-white hover:shadow-gray-lightish',
+                    active && 'border-black',
+                )}
+            >
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {@html icon}
+            </button>
+        {/each}
+    </div>
 
-<div contenteditable="true" bind:this={editorEle} class="editor">
-    Loading editor...
-</div>
+    <div>
+        <div
+            contenteditable="true"
+            bind:this={editorEle}
+            use:editorAction
+            class="ucla-prose rounded-md border border-gray-lightest bg-white px-4 py-5 shadow-lg"
+        >
+            <!-- todo: Use a headless editor to SSR what should normally be here -->
+            Loading editor...
+        </div>
 
-<div class="debug">
-    <pre>{$debugStore}</pre>
+        <div class="px-4">
+            <div
+                class="whitespace-pre rounded-b-md border-x border-b border-gray-lightest bg-gray-lightest-morest font-mono text-xs shadow-lg"
+            >
+                <div
+                    class="grid grid-cols-1 divide-x divide-gray md:grid-cols-2"
+                >
+                    <div class="overflow-x-auto p-2">{$debugStore}</div>
+                    <div class="overflow-x-auto p-2">{$stateStore}</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<style>
-    :global(body) {
-        background: #efefef;
-    }
-    .toolbar {
-        display: flex;
-        gap: 0.5rem;
-        overflow: clip;
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-    }
-    .toolbar button {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.375rem 0.375rem 0 0;
-        border-width: 1px;
-        border-color: white;
-        padding-left: 0.75rem;
-        padding-right: 0.75rem;
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
-        background: #fefefe;
-        border: none;
-    }
-    .toolbar button:hover {
-        background: #f3f4f6;
-    }
-    .editor {
-        border-radius: 0.375rem;
-        border-width: 1px;
-        border-color: #f3f4f6;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        border: 1px solid #f3f4f6;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
-        background: #fefefe;
-    }
-    .debug {
-        padding-left: 1.5rem;
-        padding-right: 1.5rem;
-        overflow-x: auto;
-        background: #f8f8f8;
-        margin-top: 0.5rem;
-        border-radius: 0.375rem;
-    }
-</style>
